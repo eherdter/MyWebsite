@@ -1,0 +1,11 @@
+---
+title: Hello, World
+author: Elizabeth Herdter Smith
+date: '2019-05-08'
+slug: hello-world
+categories: []
+tags: []
+---
+
+Hello World! This is my first post to my new website. My goal is to use this platform as a way to tell you all about cool projects that I do and how I moved into data science. Hope you'll hang tight
+while I get this place up and running.... 
