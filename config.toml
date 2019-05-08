@@ -1,6 +1,6 @@
-baseurl = "https://nanx.me/hugo-tanka/"
-title = "Hugo Tanka Theme"
-author = "Nan Xiao"
+baseurl = "https://youthful-kare-a81e68.netlify.com/"
+title = "Elizabeth Herdter Smith, Ph.D."
+author = "Elizabeth Herdter Smith, Ph.D."
 canonifyurls = true
 languagecode = "en"
 theme = "hugo-tanka"
@@ -19,7 +19,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [[menu.main]]
     name = "Home"
-    url = ""
+    url = "https://youthful-kare-a81e68.netlify.com/"
     weight = 1
 [[menu.main]]
     name = "GitHub"
