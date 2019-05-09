@@ -1,4 +1,4 @@
-baseurl = "https://youthful-kare-a81e68.netlify.com/"
+baseurl = "http://eherdtersmith.rbind.io/"
 title = "Elizabeth Herdter Smith, Ph.D."
 author = "Elizabeth Herdter Smith, Ph.D."
 canonifyurls = true
@@ -19,7 +19,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [[menu.main]]
     name = "Home"
-    url = "https://youthful-kare-a81e68.netlify.com/"
+    url = "http://eherdtersmith.rbind.io/"
     weight = 1
 [[menu.main]]
     name = "GitHub"
