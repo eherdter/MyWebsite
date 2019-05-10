@@ -1,0 +1,119 @@
+---
+title: How I Learned R
+author: Elizabeth Herdter Smith
+date: '2019-05-10'
+slug: how-i-learned-r
+categories: []
+tags:
+  - learn R
+  - R
+  - R for beginniners
+---
+
+##I learned R in the best/worst way possible. 
+
+Let me provide some context. 
+
+It was 2013. I was a young graduate student with very little programming experience under my belt. By little I mean maybe a half semester of [SciLab](https://www.scilab.org/) and another semester where I used [MatLab](https://www.mathworks.com/products/matlab.html) to learn about multivariate statistics. Other than that, nothing.   
+
+There were no other courses offered in my department that used/taught R and my advisor (brought up on Fortran and SigmaPlot) certainly was not using R. 
+
+But, halfway through my Masters program I began semi-collaborating with someone outside of my department who used R. This person was reviewing some analyses I had done (incorrectly, to be honest) in Excel. She sent me her results and R script. 
+
+I was immediately taken by how seamless her analysis looked. So clean, so tidy. No copy and pasting cells in Excel. Just a few lines of reproducible code. I was hooked. I knew that if I was going to succeed in anything data related I needed to learn to prgrammatically manipulate data, and I needed to learn how to do that with R. 
+
+###Why R?
+If someone asked me this question back in 2013 I would have been able to give no answers other than...  
+
+1. It's free and I'm a grad student (i.e. my spending levels are on a long-term diet).
+2. My collaborator uses it. 
+
+__Now?__  
+So many reasons (probably enough for another post). But, in short (and in no particular order)...  
+
+1. It's free and open source.   
+2. There is an abundance of online help. 
+3. It has all of the tools I need for all of the work I do.
+4. ggplot2 and the tidyverse.
+5. The R users community. 
+
+So, back to learning R in the best/worst way possible. 
+
+## The **best** way I learned R.
+__The internet__.   
+I think it's a universal truth that to become good at R you must become good at googling questions about R. Ask any other R user and I bet $100 imaginary dollars that they will say nearly the exact same thing. 
+
+Although I can't remember exactly what my query was, I'm sure I typed something like [__"learn R"__](https://www.google.com/search?rlz=1C1GCEB_enUS836US836&ei=HIXVXNXvEsuQ_Qa215qgDQ&q=learn+R+&oq=learn+R+&gs_l=psy-ab.3..0l10.1919.1919..2667...0.0..0.78.78.1......0....1..gws-wiz.......0i71.cyE1o4Mf0sU) 
+into my web browser.
+
+Chosing a starting place is daunting and I had no idea where to start. So I clicked on one of the top 10 results at the time which, if memory serves me correctly, was R for Pirates. I can't find this resource now but I remember it having the format of web-based learning modules. I don't think it matters exactly where you start. __JUST START SOMEWHERE.__
+
+After finishing the learning modules I felt confident enough to take off the training wheels and download R from [CRAN](https://cran.r-project.org/), the Comprehensive R Archive Network. 
+
+__Then I started googling.__
+
+1. How to load data into R?   
+2. How to view my data in R?  
+3. How to make a new column in my data in R?  
+4. How to make a plot in R?  
+5. How to do a linear model in R?  
+
+You get the gist and the list goes on and on.... 
+
+I read forums. I read other people's posts. I read the answers to other people's questions. And slowly, but very surely and in an iterative style, I learned R. 
+
+But, I don't want to trick you. It was not this easy. Many, many, many times I felt as if I was learning R by bashing my head against a concrete wall. 
+
+Which leads me to...
+
+## The **worst** way I learned R. 
+__Without the knowledge of the many amazing R learning resources.__
+
+In the interest of honesty, here, I will share an embarrassing secret.    
+
+I used R for almost 1 year without an IDE because I simply did not know one existed!!!!
+
+At this time I knew only 1 person who used R. I was not an active Twitter user so I did not know of the wonderful world which is [#rstats](https://twitter.com/hashtag/rstats?lang=en) or [Rladies](https://rladies.org/).  I was not aware of the R community on [Stack Overflow](https://stackoverflow.com/questions/tagged/r). I was not aware that people actually got together to talk about R and learn from each other. 
+
+I had not yet realized that I learned best by way of physical resources. Books that I could hold in my hand, underline, sticky note. I did not have a copy of Crawley's The R Book. I did not have [Hands-On Programming with R](https://rstudio-education.github.io/hopr/) and [R for Data Science](https://r4ds.had.co.nz/) didn't even exist. BTW, these two are my all-time favorites, my ride-or-dies of R, if you will. 
+
+Basically you could say I was on a self-imposed, unaware, R island. It's embarrassing but it's the truth. 
+
+## My suggestion to a beginner R user. 
+__Start somewhere.__  
+There is no perfect place to start. Just start somewhere. Yes, you'll be confused. But sometimes confusion is a good thing. 
+
+__Identify your learning style.__  
+Know which way you learn best and seek out the resources. 
+
+_Online learning modules?_   
+Great! There are so many of them. Some even for free. 
+
+_Textbooks?_  
+Awesome! Get your hands on them. There are many; some better than others. Some even have online free versions. 
+
+_Group learning?_   
+Sweet! Check your area for learning groups. Many universities have classes or clubs. There may even be a [Meetup](https://www.meetup.com/topics/r-project-for-statistical-computing/) group in your area. 
+
+__Engage with the community.__  
+Do not, I repeat, do not put yourself on an R island like I did. 
+There are so many amazingly nice people learning and using R every. single. day. Engage with them! Do not be intimidated.  
+*Not a single R user got to where they are without first being a beginner.* 
+
+__Accept the fact that it will be challenging.__  
+Self-improvement is not easy. You will be deliberately making yourself feel uncomfortable. But this is where the learning happens. Once you become comfortable with the fact that you're going to feel uncomfortable you'll be primed for learning. 
+
+__Don't give up.__  
+I don't mean to be trite but seriously. Just don't give up. Learning R is hard. Give yourself some credit. Celebrate even the smallest of victories. 
+
+
+## To Close...
+Learning R was one of the most **FRUSTRATING but REWARDING** things I have ever done. Maybe even more rewarding than finishing my Ph.D. (but that's another story). If you're a beginner R user..
+
+_Do_  
+1. Start googling.  
+2. Find the resources that work best for you.  
+3. Talk to other R users.  
+4. Accept that it's ok to feel uncomfortable. 
+
+Happy R learning!
