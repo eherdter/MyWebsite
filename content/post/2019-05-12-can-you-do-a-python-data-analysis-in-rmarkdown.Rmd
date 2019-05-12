@@ -1,0 +1,15 @@
+---
+title: Can you do a Python data analysis in RMarkdown?
+author: Elizabeth Herdter Smith
+date: '2019-05-12'
+slug: can-you-do-a-python-data-analysis-in-rmarkdown
+categories: []
+tags:
+  - Python
+  - data viz
+  - Rmarkdown
+  - R
+  - seaborn
+---
+
+#Test
