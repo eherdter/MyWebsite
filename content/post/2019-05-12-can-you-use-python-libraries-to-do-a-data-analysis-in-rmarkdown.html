@@ -1,0 +1,35 @@
+---
+title: Can you use Python libraries to do a data analysis in RMarkdown?
+author: Elizabeth Herdter Smith
+date: '2019-05-12'
+slug: can-you-use-python-libraries-to-do-a-data-analysis-in-rmarkdown
+categories: []
+tags:
+  - data analysis
+  - python
+  - python in rmarkdown
+  - R
+  - seaborn
+  - data viz
+---
+
+
+
+<pre class="python"><code>import pandas as pd
+import glob
+import os
+
+path = r&#39;../../static/data&#39;                     # use your path
+all_files = glob.glob(os.path.join(path, &quot;*.csv&quot;))     # advisable to use os.path.join as this makes #concatenation OS independent
+
+df_from_each_file = (pd.read_csv(f) for f in all_files)
+df   = pd.concat(df_from_each_file, ignore_index=True)</code></pre>
+<pre class="python"><code>df.head(5)</code></pre>
+<pre><code>##    duration_sec           ...           bike_share_for_all_trip
+## 0           598           ...                                No
+## 1           943           ...                                No
+## 2         18587           ...                                No
+## 3         18558           ...                                No
+## 4           885           ...                               Yes
+## 
+## [5 rows x 16 columns]</code></pre>
