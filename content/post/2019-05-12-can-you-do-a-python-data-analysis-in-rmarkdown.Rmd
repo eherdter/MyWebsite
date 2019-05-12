@@ -13,7 +13,7 @@ tags:
 ---
 
 
-## The answer to that would be a strong "YES!"
+## "YES!"
 
 To show you how easy it is I'm going to reproduce an analysis I did a few months ago where I only used Python libraries. 
 
