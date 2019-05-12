@@ -12,4 +12,65 @@ tags:
   - seaborn
 ---
 
-#Test
+
+## The answer to that would be a strong "YES!"
+
+To show you how easy it is I'm going to reproduce an analysis I did a few months ago where I only used Python libraries. 
+
+There are a few things you need to get this up and running. 
+
+1. Python installed somewhere on your computer.  
+2. The [**reticulate**](https://rstudio.github.io/reticulate/) R package installed.  
+3. A dataset to explore and analyze.   
+
+Easy peasy! 
+
+
+## To Start. 
+
+**First, install Python if you haven't already.**   
+I used the [Anaconda Distribution](https://www.anaconda.com/distribution/) and made an environment which I called _data_. You can call yours anything you want as long as it's intuitive enough for you to remember what you use it for. 
+
+**Next, we need to install the reticulate package.**   
+I did this in an R code chunk.
+```{r  eval=FALSE}
+install.packages("reticulate")
+```
+
+**Then, we need to tell reticulate which Python version or Conda environment to use.**   
+The [reticulate documentation](https://rstudio.github.io/reticulate/) was pretty helpful for me at this step. This is also done in an R code chunk. 
+
+```{r setup}
+library(reticulate) #load reticulate
+use_condaenv(condaenv = "data") #tell reticulate which conda environment to use
+```
+
+**Finally, get some data to test it out!**  
+From here on out all the analysis will be done using the Python language so the code chunks will also have to be Python.  
+
+Import the libraries you'll want to use. I use **Pandas** and I'll also need **glob** and **os** because I'll be defining a path to where my data are stored and I have more than 1 data file to load. 
+```{python}
+import pandas as pd
+import glob
+import os
+```
+
+Next, I'll specify my path, load the files I want, and then concatenate them into one large dataframe. 
+```{python}
+path = r'../../static/data' #path to where my data are stored
+all_files = glob.glob(os.path.join(path, "*tripdata.csv"))
+
+df_from_each_file = (pd.read_csv(f) for f in all_files)
+df   = pd.concat(df_from_each_file, ignore_index=True)
+
+```
+
+Ok, let's see if it will work! `r emo::ji("crossed_fingers")` 
+```{python}
+df.head(5)
+```
+
+HUZZAH!!!!!! Happy day, it worked! 
+
+## Next, let's talk about the data.   
+Now would be a good time for me to give you a background on the dataset that I'll be exploring. 

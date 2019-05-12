@@ -14,4 +14,55 @@ tags:
 
 
 
-<p>#Test</p>
+<div id="the-answer-to-that-would-be-a-strong-yes" class="section level2">
+<h2>The answer to that would be a strong “YES!”</h2>
+<p>To show you how easy it is I’m going to reproduce an analysis I did a few months ago where I only used Python libraries.</p>
+<p>There are a few things you need to get this up and running.</p>
+<ol style="list-style-type: decimal">
+<li>Python installed somewhere on your computer.<br />
+</li>
+<li>The <a href="https://rstudio.github.io/reticulate/"><strong>reticulate</strong></a> R package installed.<br />
+</li>
+<li>A dataset to explore and analyze.</li>
+</ol>
+<p>Easy peasy!</p>
+</div>
+<div id="to-start." class="section level2">
+<h2>To Start.</h2>
+<p><strong>First, install Python if you haven’t already.</strong><br />
+I used the <a href="https://www.anaconda.com/distribution/">Anaconda Distribution</a> and made an environment which I called <em>data</em>. You can call yours anything you want as long as it’s intuitive enough for you to remember what you use it for.</p>
+<p><strong>Next, we need to install the reticulate package.</strong><br />
+I did this in an R code chunk.</p>
+<pre class="r"><code>install.packages(&quot;reticulate&quot;)</code></pre>
+<p><strong>Then, we need to tell reticulate which Python version or Conda environment to use.</strong><br />
+The <a href="https://rstudio.github.io/reticulate/">reticulate documentation</a> was pretty helpful for me at this step. This is also done in an R code chunk.</p>
+<pre class="r"><code>library(reticulate) #load reticulate
+use_condaenv(condaenv = &quot;data&quot;) #tell reticulate which conda environment to use</code></pre>
+<p><strong>Finally, get some data to test it out!</strong><br />
+From here on out all the analysis will be done using the Python language so the code chunks will also have to be Python.</p>
+<p>Import the libraries you’ll want to use. I use <strong>Pandas</strong> and I’ll also need <strong>glob</strong> and <strong>os</strong> because I’ll be defining a path to where my data are stored and I have more than 1 data file to load.</p>
+<pre class="python"><code>import pandas as pd
+import glob
+import os</code></pre>
+<p>Next, I’ll specify my path, load the files I want, and then concatenate them into one large dataframe.</p>
+<pre class="python"><code>path = r&#39;../../static/data&#39; #path to where my data are stored
+all_files = glob.glob(os.path.join(path, &quot;*tripdata.csv&quot;))
+
+df_from_each_file = (pd.read_csv(f) for f in all_files)
+df   = pd.concat(df_from_each_file, ignore_index=True)</code></pre>
+<p>Ok, let’s see if it will work! 🤞</p>
+<pre class="python"><code>df.head(5)</code></pre>
+<pre><code>##    duration_sec           ...           bike_share_for_all_trip
+## 0           598           ...                                No
+## 1           943           ...                                No
+## 2         18587           ...                                No
+## 3         18558           ...                                No
+## 4           885           ...                               Yes
+## 
+## [5 rows x 16 columns]</code></pre>
+<p>HUZZAH!!!!!! Happy day, it worked!</p>
+</div>
+<div id="next-lets-talk-about-the-data." class="section level2">
+<h2>Next, let’s talk about the data.</h2>
+<p>Now would be a good time for me to give you a background on the dataset that I’ll be exploring.</p>
+</div>
