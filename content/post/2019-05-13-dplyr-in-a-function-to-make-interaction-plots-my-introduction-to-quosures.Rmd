@@ -1,0 +1,60 @@
+---
+title: 'Dplyr in a function to make interaction plots: My introduction to quosures. '
+author: Elizabeth Herdter Smith
+date: '2019-05-13'
+slug: dplyr-in-a-function-to-make-interaction-plots-my-introduction-to-quosures
+categories: []
+tags:
+  - R
+  - dplyr
+  - interaction plots
+---
+
+**Recently, I was fitting some generalized linear models and wanted to make some interaction plots with ggplot.** 
+
+An interaction plot (for those unfamiliar) is used to show how the relationship between a categorical factor and a continuos response variable is dependent on the value (or level) of an additional categorical factor. 
+
+For example this figure from [here](https://ademos.people.uic.edu/Chapter13.html) plots the relationship between GPA (the response variable) and the type of tutor the student worked with (first categorical response variable) plotted for each level of the gender (second categorical variable). 
+
+![](\post\2019-05-13-dplyr-in-a-function_files\example_int_plot.jpg)
+
+
+
+I was evaluating a handful of categorical covariates, less than 10 but enough that, for the sake of tidiness, it was better to write a function to which I could pass a grouping variable and it would return a nice interaction plot, rather than having repeated code clogging up my _already_ voluptuous script. 
+
+The data I was working with were from a fishery in the United States that had fishing-trip-level information about the total number of fish caught on the trip, the date (year, season) of the trip, how many people were on the trip, etc.... 
+
+**All I wanted to do..** was produce a plot with _year_ on the X and _catch_ on the Y by different categorical variables such as _timeofday_ or _season_. 
+
+**"Ok, Liz (that's me), this should be pretty straightforward", I thought**
+
+So I first wrote this function...
+
+```{r}
+interaction_plot1 = function(dat, var1, var2){
+  
+  
+  dat2 <- dat %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(mean_catch = mean(target_num), mean_catchnum = mean(target_num)) #lazily evaluate them
+  
+  ggplot(dat2, aes(x=year, y=mean_catch, color=var2)) + geom_line(aes(group=var2)) + 
+    geom_point() +
+    scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
+    theme_bw() + labs(y='Mean Catch')
+  #return(dat2)
+  
+}
+
+```
+
+interaction_plot1 = function(dat, var1, var2){
+  
+  
+  dat2 <- dat %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(mean_catch = mean(target_num), mean_catchnum = mean(target_num)) #lazily evaluate them
+  
+  ggplot(dat2, aes(x=year, y=mean_catch, color=var2)) + geom_line(aes(group=var2)) + 
+    geom_point() +
+    scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
+    theme_bw() + labs(y='Mean Catch')
+  #return(dat2)
+  
+}
