@@ -99,7 +99,7 @@ Of course, real world data come with real world problems. These data aren't perf
 
 I don't think its really useful to show you every cleaning step I took so I'll take care of it behind the scenes and summarize what I've done. 
 
-```{python, include=FALSE}
+```{python include=FALSE}
 
 df1 = df.copy()
 df1[['start_time', 'end_time']]=df1[['start_time', 'end_time']].apply(pd.to_datetime)

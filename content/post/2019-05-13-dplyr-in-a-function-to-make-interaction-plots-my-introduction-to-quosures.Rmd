@@ -10,51 +10,223 @@ tags:
   - interaction plots
 ---
 
-**Recently, I was fitting some generalized linear models and wanted to make some interaction plots with ggplot.** 
+
+
+```{r include=FALSE}
+region <- 'FL_Keys' # SE_FL or FL_Keys, when running continuity make sure region here is selected as Keys, it matters so that area variable is not dropped 
+method <- "clus" 
+minyr <- 1981 #1981, 2008
+maxyr <- 2017
+
+
+library(here)
+d2 <- read_csv(here("static", "data", "fish_data.csv"))
+names(d2)  <- tolower(names(d2))
+d2$year <- as.factor(d2$year)
+
+
+#select years
+d2 <- d2 %>% filter(year %in% minyr:maxyr)
+
+# MAKE SOME EXTRA VARS ####
+#number of anglers category
+d2$fishing_area      <- as.factor(ifelse(d2$area_x %in% c(1,3),'inshore','offshore'))
+d2$hours_spent_fishing      <- as.factor(cut(d2$hrsf,breaks=c(seq(0,12,2),100),right=F))
+d2$cntrbtrs  <- as.factor(ifelse(d2$cntrbtrs >=7,'7+',d2$cntrbtrs))
+d2$avidity    <- as.factor(cut(d2$ffdays,breaks=c(seq(0,30,5),60),include.lowest=T,right=F))
+d2$cnty       <- as.factor(d2$cnty)
+d2$mode    <- as.factor(d2$mode_fx)
+d2$season_of_year       <- as.factor(d2$wave) 
+
+dat <- d2
+
+```
+
+
+##All I really wanted to do was use dplyr in a function that made interaction plots with `ggplot`. Easy, right?
+
+Yeah, once I knew how to do it. 
+
+### Here's the background on interaction plots.
 
 An interaction plot (for those unfamiliar) is used to show how the relationship between a categorical factor and a continuos response variable is dependent on the value (or level) of an additional categorical factor. 
 
-For example this figure from [here](https://ademos.people.uic.edu/Chapter13.html) plots the relationship between GPA (the response variable) and the type of tutor the student worked with (first categorical response variable) plotted for each level of the gender (second categorical variable). 
+For example, this figure below (taken from [here](https://ademos.people.uic.edu/Chapter13.html)) plots the relationship between GPA (the response variable) and the type of tutor the student worked with (first categorical response variable) plotted for each level of the gender (second categorical variable). 
 
 ![](\post\2019-05-13-dplyr-in-a-function_files\example_int_plot.jpg)
 
+The non-parallel lines indicate there is an interaction between tutor type and gender on the predicted GPA. 
 
+###So, back to my issue._   
+I was evaluating a handful of categorical covariates on a continuous response variable; less than 10 variables but enough that, for the sake of tidiness, it was better to write a function to which I could pass a covariate and the function would return a nice interaction ggplot. 
 
-I was evaluating a handful of categorical covariates, less than 10 but enough that, for the sake of tidiness, it was better to write a function to which I could pass a grouping variable and it would return a nice interaction plot, rather than having repeated code clogging up my _already_ voluptuous script. 
+The data in question were from a U.S. fishery organization. The dataset contained information about fishing trips fishers had taken in the past few years; information included the total number of fish caught on the trip, the date (year, season) of the trip, how many people were on the trip, etc.... 
 
-The data I was working with were from a fishery in the United States that had fishing-trip-level information about the total number of fish caught on the trip, the date (year, season) of the trip, how many people were on the trip, etc.... 
+My goal was straightforward: produce a plot with `year` (first categorical variable) on the X and `average_catch` (response) on the Y by different categorical variables such as `hours_spent_fishing` or `fishing_area`. 
 
-**All I wanted to do..** was produce a plot with _year_ on the X and _catch_ on the Y by different categorical variables such as _timeofday_ or _season_. 
+**"Ok, Liz, this should be pretty straightforward", I thought**
 
-**"Ok, Liz (that's me), this should be pretty straightforward", I thought**
+### I first wrote this function...
 
-So I first wrote this function...
-
-```{r}
+```{r eval=FALSE}
 interaction_plot1 = function(dat, var1, var2){
   
+  dat2 <- dat %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
   
-  dat2 <- dat %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(mean_catch = mean(target_num), mean_catchnum = mean(target_num)) #lazily evaluate them
-  
-  ggplot(dat2, aes(x=year, y=mean_catch, color=var2)) + geom_line(aes(group=var2)) + 
-    geom_point() +
-    scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
-    theme_bw() + labs(y='Mean Catch')
-  #return(dat2)
-  
+  ggplot(dat2, aes(x=var1, y=average_annual_catch, color=var2)) + geom_line(aes(group=var2)) + geom_point() 
+
 }
 
 ```
 
-interaction_plot1 = function(dat, var1, var2){
+I would pass it a dataset, and two variables, `var1` and `var2`. Then the function would use dplyr to group by `var1` and `var2` and summarize total catch (the response variable) for each level of `var1` and `var2`. Next, this new dataframe would be passed into `ggplot` magic and I'd get a nice plot out of it. Right!? 
+
+```{r }
+interaction_plot1(dat, year, hours_spent_fishing)
+```
+Wrong! 
+
+
+###Then, I tried to add quotes around the variable names
+
+```{r eval=FALSE}
+
+interaction_plot2 = function(dat, "var1", "var2"){
+
+ dat2 <- dat %>% dplyr::group_by("var1", "var2") %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
   
+  ggplot(dat2, aes(x="var1", y=average_annual_catch, color="var2")) + geom_line(aes(group="var2")) + geom_point() 
   
-  dat2 <- dat %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(mean_catch = mean(target_num), mean_catchnum = mean(target_num)) #lazily evaluate them
+}
+```
+
+"Now, this has _GOT_ to work!"
+```{r}
+interaction_plot2(dat, year, hours_spent_fishing)
+```
+
+Drat! Wrong, again! 
+
+### Finally, I Googled. 
+
+A hop, skip, and a leap and I found myself on this page about [programming with dplyr](https://dplyr.tidyverse.org/articles/programming.html).   
+Highyl recommend you read this page; I will not do it justice and I'm not an expert on tidyeval... yet. 
+
+Turns out,  dplyr functions use something called **non-standard evaluation (NSE)** which basically means that these functions don’t follow the normal R rules of evaluation. Instead, they capture the expression that you send into a statement like `group_by()` or `summarize()` and evaluate the expression in a custom fashion. Ok, still confused, I kept reading. 
+
+Towards the middle of the page I found the golden key that explained/solved my entire problem:
+
+>Writing a function is hard if you want one of the arguments to be a variable name (like x) or an expression (like x + y). That’s because dplyr automatically “quotes” those inputs, so they are not referentially transparent. Let’s start with a simple case: you want to vary the grouping variable for a data summarization.<
+
+YES! This is exactly what I wanted to do! 
+
+I find out that dplyr functions quote their inputs - that's that NSE thing I mentioned above. So, to make the function work, the input needs to be quoted so that the function knows it's taking a bare variable name and NOT some pre-defined object in the global R environment.
+
+**Quoting the variable should be easy; just use " ". WRONG!** 
+
+This makes a string, we don't want a string.   
+
+What we want is to capture the expression the way dplyr functions do, ya know, in the non-standard way. For this, we need to know a little about **quosures**, which are special formulas returned by the `quo()` function.
+
+Here's an example... 
+```{r}
+quo(q1)
+
+```
+
+See how it returns a formula? That little puppy is called a **quosure**. 
+Quosure, quosure, quosure. What a fun word to say.   
+This is the format that we want for our variable that get's passed into the `dplyr` functions. We need to for it be a quoted, expression-like object. 
+
+**But, there's always a "but"**
+
+Like me in seventh grade, quo() takes everything SO LITERAL. If we were to use it to modify the top part of the function like so..
+```{r}
+interaction_plot = function(dat, var1, var2){
   
-  ggplot(dat2, aes(x=year, y=mean_catch, color=var2)) + geom_line(aes(group=var2)) + 
+  var1 = quo(var1)
+  var2 = qup(var2)
+  
+  ....
+}
+
+```
+
+The function would literally pass `^var1` and `^var2` to the second part of the function. It wouldn't be dynamic; it wouldn't see what the user typed for each position and return that variable name as a quosure. 
+
+**We need to level up with enquo()**
+As the documentation says, `enquo()`
+>uses some dark magic to look at the argument, see what the user typed, and return _**that**_ value as a quosure
+
+To finish this off two things need to be done:  
+
+1. _Modify the function with `enquo()`_   
+In the first part of the function `enquo` the incoming variables. 
+```{r}
+interaction_plot2 = function(dat, var1, var2){
+  
+  var1 = enquo(var1)
+  var2 = enquo(var2)
+  
+  ....
+
+}
+
+```
+
+2. _Then, tell `group_by()` to hang back and NOT quote the variable because `enquo()` has already done the heavy lifting._  
+
+Do this with `!!` in the second part of the function. 
+```{r}
+interaction_plot2 = function(dat, var1, var2){
+  
+  ....
+  
+  dat2 <- dat %>% dplyr::group_by( !!var1, !!var2) %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
+  
+  ggplot(dat2, aes(x=!!var1, y=average_annual_catch, color= !!var2)) + geom_line(aes(group= !!var2)) + 
     geom_point() +
     scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
     theme_bw() + labs(y='Mean Catch')
-  #return(dat2)
+
   
 }
+```
+
+
+### Now we have a working function!
+With `enquo()` and `!!` we've gone from drab to fab! 
+```{r}
+interaction_plot_final= function(dat, var1, var2){
+  
+  var1 = enquo(var1)
+  var2 = enquo(var2)
+  
+  dat2 <- dat %>% dplyr::group_by( !!var1, !!var2) %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
+  
+  ggplot(dat2, aes(x=!!var1, y=average_annual_catch, color= !!var2)) + geom_line(aes(group= !!var2)) + 
+    geom_point() +
+    scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
+    theme_bw() + labs(y='Mean Catch')
+
+  
+}
+```
+
+### Finally, some nice interaction plots! 
+```{r}
+interaction_plot_final(dat, year, hours_spent_fishing)
+```
+
+
+```{r}
+interaction_plot_final(dat, year, fishing_area)
+```
+
+
+
+
+
+
+
+
