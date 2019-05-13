@@ -72,5 +72,68 @@ df.head(5)
 
 HUZZAH!!!!!! Happy day, it worked! 
 
-## Next, let's talk about the data.   
-Now would be a good time for me to give you a background on the dataset that I'll be exploring. 
+## About the Data.   
+Npw might be a good time to talk about the data before I dive in. The dataset that I'm going to analyze is from the [Ford GoBike](https://www.fordgobike.com/system-data) bike share system that operates in the Bay Area (San Francisco, East Bay, and San Jose). The dataset includes information for each trip made during 2018. The types of features in the dataset include:  
+* trip duration  
+* start time and date, end time and date 
+* start station ID and name, end statiion ID and name, etc.... 
+The data are downloadable [here](https://s3.amazonaws.com/fordgobike-data/index.html).
+
+This is a really big dataset (remember, each row represents a unique trip made by a rider)
+```{python}
+df.shape
+```
+
+And there are a handful of features available for each trip.
+```{python}
+df.info()
+```
+
+### Main Features of Interest. 
+
+There's a lot happening in this dataset. We could look into the total number of rides at an hourly, daily, weekly, or monthyl resolution. We can also use it to learn about 
+peak rides from each station. We could also explore the interaction between the number of rides made in each hour of each day as well as the average duration across hours in each day. What might be really interestig is to identify the most traveled route (i.e. top start and stop stations) which might be useful if the company wanted to identify areas for new stations or add more bikes to existing stations. 
+
+### Some preliminary munging.
+Of course, real world data come with real world problems. These data aren't perfect (i.e. there are some missing entries) and our date and time format aren't exaclty how I'd like them. So I'm going to clean some of the issues and then extract some new features that will help in my analysis moving forward.   
+
+I don't think its really useful to show you every cleaning step I took so I'll take care of it behind the scenes and summarize what I've done. 
+
+```{python, include=FALSE}
+
+df1 = df.copy()
+df1[['start_time', 'end_time']]=df1[['start_time', 'end_time']].apply(pd.to_datetime)
+
+df1[['start_station_id', 'end_station_id']]=df1[['start_station_id', 'end_station_id']].fillna(0).astype(int)
+df1[['start_station_id', 'end_station_id']]=df1[['start_station_id', 'end_station_id']].fillna(0).astype(str)
+
+df1[['bike_id', "member_birth_year"]]=df1[['bike_id', 'member_birth_year']].astype('str')
+
+df1['start_hour'] = df1.start_time.dt.hour
+df1['start_day'] = df1.start_time.dt.day
+df1['start_month'] = df1.start_time.dt.month
+df1['start_weekday'] = df1.start_time.dt.weekday
+
+
+df1['end_hour'] = df1.end_time.dt.hour
+df1['end_day'] = df1.end_time.dt.day
+df1['end_month'] = df1.end_time.dt.month
+df1['end_weekday'] = df1.start_time.dt.weekday
+
+df1['duration_mins'] = df1.duration_sec/60
+df1['duration_hours']=df1.duration_sec/3600
+
+bins = np.arange(0, int(df1.duration_hours.max()+0.1)+1, 1)
+bins
+
+df1['duration_hours'] = pd.cut(df1['duration_hours'], bins)
+
+```
+
+
+1. Changed start and end time to Python type datetime.    
+2. Changed start and end station ID from a float to a string, bike_id, and member_birthyear to Python type object.   
+3. Engineered new variables for start hour, day, month, and day of the week using the start_time feature and did the same thing for end_time.   
+4. Converted duation into minutes and hours using the duration_sec variable and turned it into a categorical binned variable (by the hour).  
+
+
