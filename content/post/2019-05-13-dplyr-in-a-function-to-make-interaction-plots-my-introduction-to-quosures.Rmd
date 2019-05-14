@@ -20,11 +20,13 @@ maxyr <- 2017
 
 
 library(here)
+library(tidyverse)
 d2 <- read_csv(here("static", "data", "fish_data.csv"))
 names(d2)  <- tolower(names(d2))
 d2$year <- as.factor(d2$year)
 
-
+minyr=1981
+maxyr=2017
 #select years
 d2 <- d2 %>% filter(year %in% minyr:maxyr)
 
@@ -33,10 +35,10 @@ d2 <- d2 %>% filter(year %in% minyr:maxyr)
 d2$fishing_area      <- as.factor(ifelse(d2$area_x %in% c(1,3),'inshore','offshore'))
 d2$hours_spent_fishing      <- as.factor(cut(d2$hrsf,breaks=c(seq(0,12,2),100),right=F))
 d2$cntrbtrs  <- as.factor(ifelse(d2$cntrbtrs >=7,'7+',d2$cntrbtrs))
-d2$avidity    <- as.factor(cut(d2$ffdays,breaks=c(seq(0,30,5),60),include.lowest=T,right=F))
-d2$cnty       <- as.factor(d2$cnty)
-d2$mode    <- as.factor(d2$mode_fx)
-d2$season_of_year       <- as.factor(d2$wave) 
+#d2$avidity    <- as.factor(cut(d2$ffdays,breaks=c(seq(0,30,5),60),include.lowest=T,right=F))
+#d2$cnty       <- as.factor(d2$cnty)
+#d2$mode    <- as.factor(d2$mode_fx)
+#d2$season_of_year       <- as.factor(d2$wave) 
 
 dat <- d2
 
@@ -81,9 +83,9 @@ interaction_plot1 = function(dat, var1, var2){
 
 I would pass it a dataset, and two variables, `var1` and `var2`. Then the function would use dplyr to group by `var1` and `var2` and summarize total catch (the response variable) for each level of `var1` and `var2`. Next, this new dataframe would be passed into `ggplot` magic and I'd get a nice plot out of it. Right!? 
 
-```{r }
-interaction_plot1(dat, year, hours_spent_fishing)
-```
+#```{r }
+#interaction_plot1(dat, year, hours_spent_fishing)
+#```
 Wrong! 
 
 
@@ -101,9 +103,9 @@ interaction_plot2 = function(dat, "var1", "var2"){
 ```
 
 "Now, this has _GOT_ to work!"
-```{r}
-interaction_plot2(dat, year, hours_spent_fishing)
-```
+#```{r}
+#interaction_plot2(dat, year, hours_spent_fishing)
+#```
 
 Drat! Wrong, again! 
 
@@ -214,14 +216,14 @@ interaction_plot_final= function(dat, var1, var2){
 ```
 
 ### Finally, some nice interaction plots! 
-```{r}
-interaction_plot_final(dat, year, hours_spent_fishing)
-```
+#```{r}
+#interaction_plot_final(dat, year, hours_spent_fishing)
+#```
 
 
-```{r}
-interaction_plot_final(dat, year, fishing_area)
-```
+#```{r}
+#interaction_plot_final(dat, year, fishing_area)
+#```
 
 
 

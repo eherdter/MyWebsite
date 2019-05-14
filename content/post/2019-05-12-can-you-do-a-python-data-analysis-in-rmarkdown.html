@@ -43,7 +43,8 @@ From here on out all the analysis will be done using the Python language so the 
 <p>Import the libraries you’ll want to use. I use <strong>Pandas</strong> and I’ll also need <strong>glob</strong> and <strong>os</strong> because I’ll be defining a path to where my data are stored and I have more than 1 data file to load.</p>
 <pre class="python"><code>import pandas as pd
 import glob
-import os</code></pre>
+import os
+import numpy as np</code></pre>
 <p>Next, I’ll specify my path, load the files I want, and then concatenate them into one large dataframe.</p>
 <pre class="python"><code>path = r&#39;../../static/data&#39; #path to where my data are stored
 all_files = glob.glob(os.path.join(path, &quot;*tripdata.csv&quot;))
@@ -62,7 +63,56 @@ df   = pd.concat(df_from_each_file, ignore_index=True)</code></pre>
 ## [5 rows x 16 columns]</code></pre>
 <p>HUZZAH!!!!!! Happy day, it worked!</p>
 </div>
-<div id="next-lets-talk-about-the-data." class="section level2">
-<h2>Next, let’s talk about the data.</h2>
-<p>Now would be a good time for me to give you a background on the dataset that I’ll be exploring.</p>
+<div id="about-the-data." class="section level2">
+<h2>About the Data.</h2>
+<p>Npw might be a good time to talk about the data before I dive in. The dataset that I’m going to analyze is from the <a href="https://www.fordgobike.com/system-data">Ford GoBike</a> bike share system that operates in the Bay Area (San Francisco, East Bay, and San Jose). The dataset includes information for each trip made during 2018. The types of features in the dataset include:<br />
+* trip duration<br />
+* start time and date, end time and date
+* start station ID and name, end statiion ID and name, etc….
+The data are downloadable <a href="https://s3.amazonaws.com/fordgobike-data/index.html">here</a>.</p>
+<p>This is a really big dataset (remember, each row represents a unique trip made by a rider)</p>
+<pre class="python"><code>df.shape</code></pre>
+<pre><code>## (1863721, 16)</code></pre>
+<p>And there are a handful of features available for each trip.</p>
+<pre class="python"><code>df.info()</code></pre>
+<pre><code>## &lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+## RangeIndex: 1863721 entries, 0 to 1863720
+## Data columns (total 16 columns):
+## duration_sec               int64
+## start_time                 object
+## end_time                   object
+## start_station_id           float64
+## start_station_name         object
+## start_station_latitude     float64
+## start_station_longitude    float64
+## end_station_id             float64
+## end_station_name           object
+## end_station_latitude       float64
+## end_station_longitude      float64
+## bike_id                    int64
+## user_type                  object
+## member_birth_year          float64
+## member_gender              object
+## bike_share_for_all_trip    object
+## dtypes: float64(7), int64(2), object(7)
+## memory usage: 227.5+ MB</code></pre>
+<div id="main-features-of-interest." class="section level3">
+<h3>Main Features of Interest.</h3>
+<p>There’s a lot happening in this dataset. We could look into the total number of rides at an hourly, daily, weekly, or monthyl resolution. We can also use it to learn about
+peak rides from each station. We could also explore the interaction between the number of rides made in each hour of each day as well as the average duration across hours in each day. What might be really interestig is to identify the most traveled route (i.e. top start and stop stations) which might be useful if the company wanted to identify areas for new stations or add more bikes to existing stations.</p>
+</div>
+<div id="some-preliminary-munging." class="section level3">
+<h3>Some preliminary munging.</h3>
+<p>Of course, real world data come with real world problems. These data aren’t perfect (i.e. there are some missing entries) and our date and time format aren’t exaclty how I’d like them. So I’m going to clean some of the issues and then extract some new features that will help in my analysis moving forward.</p>
+<p>I don’t think its really useful to show you every cleaning step I took so I’ll take care of it behind the scenes and summarize what I’ve done.</p>
+<ol style="list-style-type: decimal">
+<li>Changed start and end time to Python type datetime.<br />
+</li>
+<li>Changed start and end station ID from a float to a string, bike_id, and member_birthyear to Python type object.<br />
+</li>
+<li>Engineered new variables for start hour, day, month, and day of the week using the start_time feature and did the same thing for end_time.<br />
+</li>
+<li>Converted duation into minutes and hours using the duration_sec variable and turned it into a categorical binned variable (by the hour).</li>
+</ol>
+</div>
 </div>
