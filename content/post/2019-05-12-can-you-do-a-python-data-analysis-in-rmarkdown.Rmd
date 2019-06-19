@@ -15,126 +15,129 @@ tags:
 
 ## "YES!"
 
-To show you how easy it is I'm going to reproduce an analysis I did a few months ago where I only used Python libraries. 
+ To show you how easy it is I'm going to reproduce an analysis I did a few months ago where I only used Python libraries.
 
-There are a few things you need to get this up and running. 
+ There are a few things you need to get this up and running. 
 
-1. Python installed somewhere on your computer.  
-2. The [**reticulate**](https://rstudio.github.io/reticulate/) R package installed.  
-3. A dataset to explore and analyze.   
+1. Python installed somewhere on your computer. 
+2. The [**reticulate**](https://rstudio.github.io/reticulate/) R package installed.   
+3. A dataset to explore and analyze. 
 
-Easy peasy! 
+Easy peasy!  
 
 
 ## To Start. 
 
-**First, install Python if you haven't already.**   
-I used the [Anaconda Distribution](https://www.anaconda.com/distribution/) and made an environment which I called _data_. You can call yours anything you want as long as it's intuitive enough for you to remember what you use it for. 
+**First, install Python if you haven't already.** 
+ I used the [Anaconda Distribution](https://www.anaconda.com/distribution/) and made an environment which I called _data_. You can call yours anything you want as long as it's intuitive enough for you to remember what you use it for. 
 
-**Next, we need to install the reticulate package.**   
+ **Next, we need to install the reticulate package.**
 I did this in an R code chunk.
-```{r  eval=FALSE}
-install.packages("reticulate")
-```
 
-**Then, we need to tell reticulate which Python version or Conda environment to use.**   
+{r  eval = FALSE}
+#install.packages("reticulate") 
+``` 
+
+
+**Then, we need to tell reticulate which Python version or Conda environment to use.**
 The [reticulate documentation](https://rstudio.github.io/reticulate/) was pretty helpful for me at this step. This is also done in an R code chunk. 
 
-```{r setup}
-library(reticulate) #load reticulate
-use_condaenv(condaenv = "data") #tell reticulate which conda environment to use
+{r eval=FALSE}
+#library(reticulate) #load reticulate
+#use_condaenv(condaenv = "data") #tell reticulate which conda environment to use 
 ```
 
-**Finally, get some data to test it out!**  
-From here on out all the analysis will be done using the Python language so the code chunks will also have to be Python.  
+**Finally, get some data to test it out!**
+From here on out all the analysis will be done using the Python language so the code chunks will also have to be Python.
 
 Import the libraries you'll want to use. I use **Pandas** and I'll also need **glob** and **os** because I'll be defining a path to where my data are stored and I have more than 1 data file to load. 
-```{python}
-import pandas as pd
-import glob
-import os
-import numpy as np
+{python eval = FALSE}
+#import pandas as pd 
+#import glob 
+#import os
+#import numpy as np
 ```
 
-Next, I'll specify my path, load the files I want, and then concatenate them into one large dataframe. 
-```{python}
-path = r'../../static/data' #path to where my data are stored
-all_files = glob.glob(os.path.join(path, "*tripdata.csv"))
+Next, I'll specify my path, load the files I want, and then concatenate them into one large dataframe.  
 
-df_from_each_file = (pd.read_csv(f) for f in all_files)
-df   = pd.concat(df_from_each_file, ignore_index=True)
+{python eval = FALSE}
+#path = r'../../static/data' #path to where my data are stored -->
+#all_files = glob.glob(os.path.join(path, "*tripdata.csv")) -->
+
+#df_from_each_file = (pd.read_csv(f) for f in all_files) -->
+#df   = pd.concat(df_from_each_file, ignore_index=True) -->
 
 ```
 
-Ok, let's see if it will work! `r emo::ji("crossed_fingers")` 
-```{python}
-df.head(5)
-```
+Ok, let's see if it will work! **`  emo::ji("crossed_fingers")` ** 
+{python eval=FALSE} 
+# df.head(5)
+``` 
 
-HUZZAH!!!!!! Happy day, it worked! 
+HUZZAH!!!!!! Happy day, it worked!
 
-## About the Data.   
-Npw might be a good time to talk about the data before I dive in. The dataset that I'm going to analyze is from the [Ford GoBike](https://www.fordgobike.com/system-data) bike share system that operates in the Bay Area (San Francisco, East Bay, and San Jose). The dataset includes information for each trip made during 2018. The types of features in the dataset include:  
+## About the Data. 
+Now might be a good time to talk about the data before I dive in. The dataset that I'm going to analyze is from the [Ford GoBike](https://www.fordgobike.com/system-data) bike share system that operates in the Bay Area (San Francisco, East Bay, and San Jose). The dataset includes information for each trip made during 2018. The types of features in the dataset include:  
 * trip duration  
-* start time and date, end time and date 
-* start station ID and name, end statiion ID and name, etc.... 
-The data are downloadable [here](https://s3.amazonaws.com/fordgobike-data/index.html).
+* start time and date, end time and date  
+* start station ID and name, end statiion ID and name, etc....  
+The data are downloadable [here](https://s3.amazonaws.com/fordgobike-data/index.html). 
 
-This is a really big dataset (remember, each row represents a unique trip made by a rider)
-```{python}
-df.shape
-```
+This is a really big dataset (remember, each row represents a unique trip made by a rider) 
+{python eval=FALSE} 
+#df.shape 
+``` 
 
-And there are a handful of features available for each trip.
-```{python}
-df.info()
-```
+And there are a handful of features available for each trip. 
+
+{python eval=FALSE}
+#df.info() 
+``` 
 
 ### Main Features of Interest. 
 
-There's a lot happening in this dataset. We could look into the total number of rides at an hourly, daily, weekly, or monthyl resolution. We can also use it to learn about 
-peak rides from each station. We could also explore the interaction between the number of rides made in each hour of each day as well as the average duration across hours in each day. What might be really interestig is to identify the most traveled route (i.e. top start and stop stations) which might be useful if the company wanted to identify areas for new stations or add more bikes to existing stations. 
+There's a lot happening in this dataset. We could look into the total number of rides at an hourly, daily, weekly, or monthyl resolution. We can also use it to learn about  peak rides from each station. We could also explore the interaction between the number of rides made in each hour of each day as well as the average duration across hours in each day. What might be really interestig is to identify the most traveled route (i.e. top start and stop stations) which might be useful if the company wanted to identify areas for new stations or add more bikes to existing stations.
 
 ### Some preliminary munging.
-Of course, real world data come with real world problems. These data aren't perfect (i.e. there are some missing entries) and our date and time format aren't exaclty how I'd like them. So I'm going to clean some of the issues and then extract some new features that will help in my analysis moving forward.   
+Of course, real world data come with real world problems. These data aren't perfect (i.e. there are some missing entries) and our date and time format aren't exaclty how I'd like them. So I'm going to clean some of the issues and then extract some new features that will help in my analysis moving forward.
 
-I don't think its really useful to show you every cleaning step I took so I'll take care of it behind the scenes and summarize what I've done. 
+I don't think its really useful to show you every cleaning step I took so I'll take care of it behind the scenes and summarize what I've done.  
 
-```{python include=FALSE}
+{python eval=FALSE } 
 
-df1 = df.copy()
-df1[['start_time', 'end_time']]=df1[['start_time', 'end_time']].apply(pd.to_datetime)
+#df1 = df.copy() -->
+#<!-- df1[['start_time', 'end_time']]=df1[['start_time', #'end_time']].apply(pd.to_datetime) -->
 
-df1[['start_station_id', 'end_station_id']]=df1[['start_station_id', 'end_station_id']].fillna(0).astype(int)
-df1[['start_station_id', 'end_station_id']]=df1[['start_station_id', 'end_station_id']].fillna(0).astype(str)
+#<!-- df1[['start_station_id', #'end_station_id']]=df1[['start_station_id', #'end_station_id']].fillna(0).astype(int) -->
+#<!-- df1[['start_station_id', #'end_station_id']]=df1[['start_station_id', #'end_station_id']].fillna(0).astype(str) -->
 
-df1[['bike_id', "member_birth_year"]]=df1[['bike_id', 'member_birth_year']].astype('str')
+#<!-- df1[['bike_id', "member_birth_year"]]=df1[['bike_id', #'member_birth_year']].astype('str') -->
 
-df1['start_hour'] = df1.start_time.dt.hour
-df1['start_day'] = df1.start_time.dt.day
-df1['start_month'] = df1.start_time.dt.month
-df1['start_weekday'] = df1.start_time.dt.weekday
+#<!-- df1['start_hour'] = df1.start_time.dt.hour -->
+#<!-- df1['start_day'] = df1.start_time.dt.day -->
+#<!-- df1['start_month'] = df1.start_time.dt.month -->
+#<!-- df1['start_weekday'] = df1.start_time.dt.weekday -->
+#
 
+#<!-- df1['end_hour'] = df1.end_time.dt.hour -->
+#<!-- df1['end_day'] = df1.end_time.dt.day -->
+#<!-- df1['end_month'] = df1.end_time.dt.month -->
+#<!-- df1['end_weekday'] = df1.start_time.dt.weekday -->
 
-df1['end_hour'] = df1.end_time.dt.hour
-df1['end_day'] = df1.end_time.dt.day
-df1['end_month'] = df1.end_time.dt.month
-df1['end_weekday'] = df1.start_time.dt.weekday
+#<!-- df1['duration_mins'] = df1.duration_sec/60 -->
+#<!-- df1['duration_hours']=df1.duration_sec/3600 -->
 
-df1['duration_mins'] = df1.duration_sec/60
-df1['duration_hours']=df1.duration_sec/3600
+#<!-- bins = np.arange(0, int(df1.duration_hours.max()+0.1)+1, 1) #-->
+#<!-- bins -->
 
-bins = np.arange(0, int(df1.duration_hours.max()+0.1)+1, 1)
-bins
-
-df1['duration_hours'] = pd.cut(df1['duration_hours'], bins)
+#<!-- df1['duration_hours'] = pd.cut(df1['duration_hours'], bins) #-->
 
 ```
 
 
-1. Changed start and end time to Python type datetime.    
-2. Changed start and end station ID from a float to a string, bike_id, and member_birthyear to Python type object.   
-3. Engineered new variables for start hour, day, month, and day of the week using the start_time feature and did the same thing for end_time.   
-4. Converted duation into minutes and hours using the duration_sec variable and turned it into a categorical binned variable (by the hour).  
+<!-- 1. Changed start and end time to Python type datetime.     -->
+<!-- 2. Changed start and end station ID from a float to a string, bike_id, and member_birthyear to Python type object.    -->
+<!-- 3. Engineered new variables for start hour, day, month, and day of the week using the start_time feature and did the same thing for end_time.    -->
+<!-- 4. Converted duation into minutes and hours using the duration_sec variable and turned it into a categorical binned variable (by the hour).   -->
 
 
