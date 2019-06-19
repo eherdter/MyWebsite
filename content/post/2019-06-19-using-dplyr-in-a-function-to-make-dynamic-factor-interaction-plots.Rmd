@@ -47,9 +47,9 @@ df$hours <- df$hours_spent_fishing
 ```
 
 
-## All I really wanted to do was use dplyr in a function that made interaction plots with tidyverse::ggplot. 
+## All I really wanted to do was use dplyr inside a function.  
 
-Easy, right? Yeah, once I knew how to do it. 
+My goal was to make a function that could dynamically produce factor interaction plots using ggplot.Easy, right? Yeah, once I knew how to do it. 
 
 ## Here's the background on interaction plots.
 
