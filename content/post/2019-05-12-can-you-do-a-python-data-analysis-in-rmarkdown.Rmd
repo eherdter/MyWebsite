@@ -53,6 +53,7 @@ Import the libraries you'll want to use. I use **Pandas** and I'll also need **g
 import pandas as pd
 import glob
 import os
+import numpy as np
 ```
 
 Next, I'll specify my path, load the files I want, and then concatenate them into one large dataframe. 

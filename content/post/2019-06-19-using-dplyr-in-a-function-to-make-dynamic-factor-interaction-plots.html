@@ -1,0 +1,153 @@
+---
+title: Using dplyr() in a function to make dynamic factor interaction plots
+author: Elizabeth Herdter Smith
+date: '2019-06-19'
+slug: using-dplyr-in-a-function-to-make-dynamic-factor-interaction-plots
+categories: []
+tags:
+  - R
+  - dplyr
+  - quosures
+  - interaction plots
+---
+
+
+
+<div id="all-i-really-wanted-to-do-was-use-dplyr-in-a-function-that-made-interaction-plots-with-tidyverseggplot." class="section level2">
+<h2>All I really wanted to do was use dplyr in a function that made interaction plots with tidyverse::ggplot.</h2>
+<p>Easy, right? Yeah, once I knew how to do it.</p>
+</div>
+<div id="heres-the-background-on-interaction-plots." class="section level2">
+<h2>Here’s the background on interaction plots.</h2>
+<p>An interaction plot (for those unfamiliar) is used to show how the relationship between a categorical factor and a continuos response variable is dependent on the value (or level) of an additional categorical factor.</p>
+<p>For example, this figure below (taken from <a href="https://ademos.people.uic.edu/Chapter13.html">here</a>) plots the relationship between GPA (the response variable) and the type of tutor the student worked with (first categorical response variable) plotted for each level of the gender (second categorical variable).</p>
+<p><img src="\post\2019-05-13-dplyr-in-a-function_files\example_int_plot.jpg" /></p>
+<p>The non-parallel lines indicate there is an interaction between tutor type and gender on the predicted GPA.</p>
+<p><strong>So, back to my issue.</strong><br />
+I was evaluating a handful of categorical covariates on a continuous response variable; less than 10 variables but enough that, for the sake of tidiness, it was better to write a function to which I could pass a covariate and the function would return a nice interaction ggplot.</p>
+<p>The data in question were from a U.S. fishery organization. The dataset contained information about fishing trips fishers had taken in the past few years; information included the total number of fish caught on the trip, the date (year, season) of the trip, how many people were on the trip, etc….</p>
+<p>My goal was straightforward: produce a plot with <code>year</code> (first categorical variable) on the X and <code>average_catch</code> (response) on the Y by different categorical variables such as <code>hours_spent_fishing</code> or <code>fishing_area</code>.</p>
+<p><strong>“Ok, Liz, this should be pretty straightforward”, I thought</strong></p>
+<div id="first-i-wrote-this-function" class="section level3">
+<h3>First, I wrote this function…</h3>
+<pre class="r"><code>interaction_plot1 = function(df, var1, var2){
+  
+  df2 &lt;- df %&gt;% dplyr::group_by(var1, var2) %&gt;% dplyr::summarize(average_annual_y = mean(y_var)) 
+  
+  ggplot(df2, aes(x=var1, y=average_annual_y, color=var2)) + geom_line(aes(group=var2)) + geom_point() 
+  
+}</code></pre>
+<p>I would pass it a dataset, and two variables, <code>var1</code> and <code>var2</code>. Then the function would use dplyr to group by <code>var1</code> and <code>var2</code> and summarize total catch (the response variable) for each level of <code>var1</code> and <code>var2</code>. Next, this new dataframe would be passed into <code>ggplot</code> magic and I’d get a nice plot out of it. Right!?</p>
+<pre class="r"><code>`interaction_plot1(df, year, hours)`</code></pre>
+<p>Wrong! It results in an error</p>
+<p><code>Error in grouped_df_impl(data, unname(vars), drop) : Column</code>var1<code>is unknown</code></p>
+<p><strong>Then, I tried to add quotes around the variable names.</strong></p>
+<pre class="r"><code>interaction_plot2 = function(dat, &quot;var1&quot;, &quot;var2&quot;){
+
+ dat2 &lt;- dat %&gt;% dplyr::group_by(&quot;var1&quot;, &quot;var2&quot;) %&gt;% dplyr::summarize(average_annual_y = mean(y_var)) 
+  
+  ggplot(dat2, aes(x=&quot;var1&quot;, y=average_annual_y, color=&quot;var2&quot;)) + geom_line(aes(group=&quot;var2&quot;)) + geom_point() 
+  
+}</code></pre>
+<p>But still, no luck!</p>
+</div>
+</div>
+<div id="quosures-the-solution." class="section level2">
+<h2>Quosures, the solution.</h2>
+<p>Finally, I took to the internet (my solution for everything).</p>
+<p>A hop, skip, and a leap and I found myself on this page about <a href="https://dplyr.tidyverse.org/articles/programming.html">programming with dplyr</a>.<br />
+Highyl recommend you read this page; I will not do it justice and I’m not an expert on tidyeval… yet.</p>
+<p>Turns out, dplyr functions use something called <strong>non-standard evaluation (NSE)</strong> which basically means that these functions don’t follow the normal R rules of evaluation. Instead, they capture the expression that you send into a statement like <code>group_by()</code> or <code>summarize()</code> and evaluate the expression in a custom fashion. Ok, still confused, I kept reading.</p>
+<p>Towards the middle of the page I found the golden key that explained/solved my entire problem:</p>
+<blockquote>
+<p>Writing a function is hard if you want one of the arguments to be a variable name (like x) or an expression (like x + y). That’s because dplyr automatically “quotes” those inputs, so they are not referentially transparent. Let’s start with a simple case: you want to vary the grouping variable for a data summarization.&lt;</p>
+</blockquote>
+<p>YES! This is exactly what I wanted to do!</p>
+<p>I find out that dplyr functions quote their inputs - that’s that NSE thing I mentioned above. So, to make the function work, the input needs to be quoted so that the function knows it’s taking a bare variable name and NOT some pre-defined object in the global R environment.</p>
+<p><strong>Quoting the variable should be easy; just use <code>" "</code>.</strong></p>
+<p>WRONG. This makes a string, we don’t want a string.</p>
+<p>What we want is to capture the expression the way dplyr functions do, ya know, in the non-standard way. For this, we need to know a little about <strong>quosures</strong>, which are special formulas returned by the <code>quo()</code> function.</p>
+<p>Here’s an example…</p>
+<pre class="r"><code>quo(q1)</code></pre>
+<pre><code>## &lt;quosure&gt;
+## expr: ^q1
+## env:  global</code></pre>
+<p>See how it returns a formula? That little puppy is called a <strong>quosure</strong>.</p>
+<p>Quosure, quosure, quosure. What a fun word to say.</p>
+<p>This is the format that we want for our variable that get’s passed into the <code>dplyr</code> functions. We need to for it be a quoted, expression-like object.</p>
+<p><strong>But, there’s always a “but”.</strong></p>
+<p>Like me in seventh grade, <code>quo()</code> takes everything SO LITERAL. If we were to use it to modify the top part of the function like so..</p>
+<pre class="r"><code>interaction_plot = function(dat, var1, var2){
+  
+  var1 = quo(var1)
+  var2 = qup(var2)
+  
+  ....
+}</code></pre>
+<p>…the function would literally pass <code>^var1</code> and <code>^var2</code> to the second part of the function.</p>
+<p>It wouldn’t be dynamic; it wouldn’t see what the user typed for each position and return that variable name as a quosure.</p>
+<p><strong>We need to level up with <code>enquo()</code>.</strong></p>
+<p>As the documentation says, <code>enquo()</code></p>
+<blockquote>
+<p>uses some dark magic to look at the argument, see what the user typed, and return <em>that</em> value as a quosure.&lt;</p>
+</blockquote>
+<p>To finish this off two things need to be done:</p>
+<ol style="list-style-type: decimal">
+<li><em>Modify the function with <code>enquo()</code></em></li>
+</ol>
+<p>In the first part of the function <code>enquo</code> the incoming variables.</p>
+<pre class="r"><code>interaction_plot2 = function(dat, var1, var2){
+  
+  var1 = enquo(var1)
+  var2 = enquo(var2)
+  
+  ....
+  
+}</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><em>Then, tell <code>group_by()</code> to hang back and NOT quote the variable because <code>enquo()</code> has already done the heavy lifting.</em></li>
+</ol>
+<p>Do this with <code>!!</code> in the second part of the function.</p>
+<pre class="r"><code>interaction_plot2 = function(dat, var1, var2){
+  
+  ....
+  
+  dat2 &lt;- dat %&gt;% dplyr::group_by( !!var1, !!var2) %&gt;% dplyr::summarize(average_annual_y= mean(y_var)) 
+  
+  ggplot(dat2, aes(x=!!var1, y=average_annual_y, color= !!var2)) + geom_line(aes(group= !!var2)) + 
+    geom_point() +
+    scale_x_discrete(name = &quot;Year&quot;, expand =c(0,0), breaks=seq(1981, 2017, by =4))+
+    theme_bw() + labs(y=&#39;Mean Y&#39;)
+  
+  
+}</code></pre>
+</div>
+<div id="final-working-solution." class="section level2">
+<h2>Final working solution.</h2>
+<p>With <code>enquo()</code> and <code>!!</code> we’ve gone from <em><em>DRAB</em></em> to <em><em>FAB</em></em>!</p>
+<pre class="r"><code>interaction_plot_final= function(dat, var1, var2){
+  
+  var1 = enquo(var1)
+  var2 = enquo(var2)
+  
+  dat2 &lt;- dat %&gt;% dplyr::group_by( !!var1, !!var2) %&gt;% dplyr::summarize(average_annual_y = mean(y_var)) 
+  
+  ggplot(dat2, aes(x=!!var1, y=average_annual_y, color= !!var2)) + geom_line(aes(group= !!var2)) + 
+    geom_point() +
+    scale_x_discrete(name = &quot;Year&quot;, expand =c(0,0), breaks=seq(1981, 2017, by =4))+
+    theme_bw() + labs(y=&#39;Mean Y&#39;)
+
+  
+}</code></pre>
+<pre class="r"><code>interaction_plot_final(df, year, hours)</code></pre>
+<p><img src="/post/2019-06-19-using-dplyr-in-a-function-to-make-dynamic-factor-interaction-plots_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<div id="to-summarize" class="section level3">
+<h3>To Summarize…</h3>
+<ol style="list-style-type: decimal">
+<li>You <em>CAN</em> use dplyr within functions. YAY!</li>
+<li><em>quosures</em> will help you do so.</li>
+<li>There are many resources (other than this post) that can guide you.</li>
+</ol>
+<p>I hope this post has been helpful!</p>
+</div>
+</div>
