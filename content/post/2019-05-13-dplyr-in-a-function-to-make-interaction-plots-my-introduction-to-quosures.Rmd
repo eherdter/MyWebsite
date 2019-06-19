@@ -38,14 +38,17 @@ d2$cnty       <- as.factor(d2$cnty)
 d2$mode    <- as.factor(d2$mode_fx)
 d2$season_of_year       <- as.factor(d2$wave) 
 
-dat <- d2
+df <- d2
+
+df$y <- df$y_var
+df$hours <- df$hours_spent_fishing
 
 ```
 
 
-##All I really wanted to do was use dplyr in a function that made interaction plots with `ggplot`. Easy, right?
+## All I really wanted to do was use dplyr in a function that made interaction plots with `ggplot`. 
 
-Yeah, once I knew how to do it. 
+Easy, right? Yeah, once I knew how to do it. 
 
 ### Here's the background on interaction plots.
 
@@ -57,7 +60,7 @@ For example, this figure below (taken from [here](https://ademos.people.uic.edu/
 
 The non-parallel lines indicate there is an interaction between tutor type and gender on the predicted GPA. 
 
-###So, back to my issue._   
+### So, back to my issue._   
 I was evaluating a handful of categorical covariates on a continuous response variable; less than 10 variables but enough that, for the sake of tidiness, it was better to write a function to which I could pass a covariate and the function would return a nice interaction ggplot. 
 
 The data in question were from a U.S. fishery organization. The dataset contained information about fishing trips fishers had taken in the past few years; information included the total number of fish caught on the trip, the date (year, season) of the trip, how many people were on the trip, etc.... 
@@ -66,14 +69,14 @@ My goal was straightforward: produce a plot with `year` (first categorical varia
 
 **"Ok, Liz, this should be pretty straightforward", I thought**
 
-### I first wrote this function...
+### First, I wrote this function...
 
 ```{r eval=FALSE}
-interaction_plot1 = function(dat, var1, var2){
+interaction_plot1 = function(df, var1, var2){
   
-  dat2 <- dat %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
+  df2 <- df %>% dplyr::group_by(var1, var2) %>% dplyr::summarize(average_annual_y = mean(y_var)) 
   
-  ggplot(dat2, aes(x=var1, y=average_annual_catch, color=var2)) + geom_line(aes(group=var2)) + geom_point() 
+  ggplot(df2, aes(x=var1, y=average_annual_y, color=var2)) + geom_line(aes(group=var2)) + geom_point() 
 
 }
 
@@ -82,27 +85,29 @@ interaction_plot1 = function(dat, var1, var2){
 I would pass it a dataset, and two variables, `var1` and `var2`. Then the function would use dplyr to group by `var1` and `var2` and summarize total catch (the response variable) for each level of `var1` and `var2`. Next, this new dataframe would be passed into `ggplot` magic and I'd get a nice plot out of it. Right!? 
 
 ```{r }
-interaction_plot1(dat, year, hours_spent_fishing)
+interaction_plot1(df, year, hours)
 ```
+
 Wrong! 
 
 
-###Then, I tried to add quotes around the variable names
+### Then, I tried to add quotes around the variable names
 
 ```{r eval=FALSE}
 
 interaction_plot2 = function(dat, "var1", "var2"){
 
- dat2 <- dat %>% dplyr::group_by("var1", "var2") %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
+ dat2 <- dat %>% dplyr::group_by("var1", "var2") %>% dplyr::summarize(average_annual_y = mean(y_var)) 
   
-  ggplot(dat2, aes(x="var1", y=average_annual_catch, color="var2")) + geom_line(aes(group="var2")) + geom_point() 
+  ggplot(dat2, aes(x="var1", y=average_annual_y, color="var2")) + geom_line(aes(group="var2")) + geom_point() 
   
 }
 ```
 
-"Now, this has _GOT_ to work!"
+"Now, this has _GOT_ to work!"  
+
 ```{r}
-interaction_plot2(dat, year, hours_spent_fishing)
+interaction_plot2(dat, year, hours)
 ```
 
 Drat! Wrong, again! 
@@ -122,7 +127,7 @@ YES! This is exactly what I wanted to do!
 
 I find out that dplyr functions quote their inputs - that's that NSE thing I mentioned above. So, to make the function work, the input needs to be quoted so that the function knows it's taking a bare variable name and NOT some pre-defined object in the global R environment.
 
-**Quoting the variable should be easy; just use " ". WRONG!** 
+**Quoting the variable should be easy; just use `" "`. WRONG!** 
 
 This makes a string, we don't want a string.   
 
@@ -134,13 +139,16 @@ quo(q1)
 
 ```
 
-See how it returns a formula? That little puppy is called a **quosure**. 
-Quosure, quosure, quosure. What a fun word to say.   
-This is the format that we want for our variable that get's passed into the `dplyr` functions. We need to for it be a quoted, expression-like object. 
+See how it returns a formula? That little puppy is called a **quosure**.  
 
-**But, there's always a "but"**
+Quosure, quosure, quosure. What a fun word to say.    
+  
+This is the format that we want for our variable that get's passed into the `dplyr` functions. We need to for it be a quoted, expression-like object.   
 
-Like me in seventh grade, quo() takes everything SO LITERAL. If we were to use it to modify the top part of the function like so..
+**But, there's always a "but".**
+
+Like me in seventh grade, `quo()` takes everything SO LITERAL. If we were to use it to modify the top part of the function like so..  
+
 ```{r}
 interaction_plot = function(dat, var1, var2){
   
@@ -152,15 +160,21 @@ interaction_plot = function(dat, var1, var2){
 
 ```
 
-The function would literally pass `^var1` and `^var2` to the second part of the function. It wouldn't be dynamic; it wouldn't see what the user typed for each position and return that variable name as a quosure. 
+...the function would literally pass `^var1` and `^var2` to the second part of the function.  
 
-**We need to level up with enquo()**
+It wouldn't be dynamic; it wouldn't see what the user typed for each position and return that variable name as a quosure. 
+
+**We need to level up with `enquo()`.**  
+
+
 As the documentation says, `enquo()`
->uses some dark magic to look at the argument, see what the user typed, and return _**that**_ value as a quosure
+
+>uses some dark magic to look at the argument, see what the user typed, and return _**that**_ value as a quosure.<
 
 To finish this off two things need to be done:  
 
-1. _Modify the function with `enquo()`_   
+1. _Modify the function with `enquo()`_     
+
 In the first part of the function `enquo` the incoming variables. 
 ```{r}
 interaction_plot2 = function(dat, var1, var2){
@@ -182,49 +196,49 @@ interaction_plot2 = function(dat, var1, var2){
   
   ....
   
-  dat2 <- dat %>% dplyr::group_by( !!var1, !!var2) %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
+  dat2 <- dat %>% dplyr::group_by( !!var1, !!var2) %>% dplyr::summarize(average_annual_y= mean(y_var)) 
   
-  ggplot(dat2, aes(x=!!var1, y=average_annual_catch, color= !!var2)) + geom_line(aes(group= !!var2)) + 
+  ggplot(dat2, aes(x=!!var1, y=average_annual_y, color= !!var2)) + geom_line(aes(group= !!var2)) + 
     geom_point() +
     scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
-    theme_bw() + labs(y='Mean Catch')
+    theme_bw() + labs(y='Mean Y')
 
   
 }
 ```
 
 
-### Now we have a working function!
-With `enquo()` and `!!` we've gone from drab to fab! 
+### Final working function!
+With `enquo()` and `!!` we've gone from *_DRAB_* to *_FAB_*! 
 ```{r}
 interaction_plot_final= function(dat, var1, var2){
   
   var1 = enquo(var1)
   var2 = enquo(var2)
   
-  dat2 <- dat %>% dplyr::group_by( !!var1, !!var2) %>% dplyr::summarize(average_annual_catch = mean(totalcatch)) 
+  dat2 <- dat %>% dplyr::group_by( !!var1, !!var2) %>% dplyr::summarize(average_annual_y = mean(y_var)) 
   
   ggplot(dat2, aes(x=!!var1, y=average_annual_catch, color= !!var2)) + geom_line(aes(group= !!var2)) + 
     geom_point() +
     scale_x_discrete(name = "Year", expand =c(0,0), breaks=seq(1981, 2017, by =4))+
-    theme_bw() + labs(y='Mean Catch')
+    theme_bw() + labs(y='Mean Y')
 
   
 }
 ```
 
-### Finally, some nice interaction plots! 
-```{r}
-interaction_plot_final(dat, year, hours_spent_fishing)
-```
-
 
 ```{r}
-interaction_plot_final(dat, year, fishing_area)
+interaction_plot_final(dat, year, hours)
 ```
 
+### To Summarize...
 
+1. You _CAN_ use dplyr within functions. YAY!
+2. *quosures* will help you do so. 
+3. There are many resources (other than this post) that can guide you. 
 
+I hope this post has been helpful! 
 
 
 
