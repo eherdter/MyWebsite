@@ -64,7 +64,7 @@ Highyl recommend you read this page; I will not do it justice and I’m not an e
 </blockquote>
 <p>YES! This is exactly what I wanted to do!</p>
 <p>I find out that dplyr functions quote their inputs - that’s that NSE thing I mentioned above. So, to make the function work, the input needs to be quoted so that the function knows it’s taking a bare variable name and NOT some pre-defined object in the global R environment.</p>
-<p><strong>Quoting the variable should be easy; just use <code>" "</code>.</strong></p>
+<p><strong>Quoting the variable should be easy; just use <code>&quot; &quot;</code>.</strong></p>
 <p>WRONG. This makes a string, we don’t want a string.</p>
 <p>What we want is to capture the expression the way dplyr functions do, ya know, in the non-standard way. For this, we need to know a little about <strong>quosures</strong>, which are special formulas returned by the <code>quo()</code> function.</p>
 <p>Here’s an example…</p>
@@ -125,6 +125,7 @@ Highyl recommend you read this page; I will not do it justice and I’m not an e
 <div id="final-working-solution." class="section level2">
 <h2>Final working solution.</h2>
 <p>With <code>enquo()</code> and <code>!!</code> we’ve gone from <em><em>DRAB</em></em> to <em><em>FAB</em></em>!</p>
+<p><img src="https://media.giphy.com/media/W2D046ZGeLntS/giphy.gif" /></p>
 <pre class="r"><code>interaction_plot_final= function(dat, var1, var2){
   
   var1 = enquo(var1)

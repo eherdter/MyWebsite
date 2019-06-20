@@ -210,6 +210,8 @@ interaction_plot2 = function(dat, var1, var2){
 ## Final working solution. 
 With `enquo()` and `!!` we've gone from *_DRAB_* to *_FAB_*!
 
+![](https://media.giphy.com/media/W2D046ZGeLntS/giphy.gif)
+
 
 ```{r}
 interaction_plot_final= function(dat, var1, var2){
