@@ -1,0 +1,132 @@
+---
+title: Traveling to Paris, France? How to get the biggest bang from your buck using
+  Airbnb.
+author: Elizabeth Herdter Smith
+date: '2019-06-19'
+slug: traveling-to-paris-france-how-to-get-the-biggest-bang-from-your-buck-using-airbnb
+categories: []
+tags:
+  - airbnb
+  - data viz
+  - Python
+  - random forest
+---
+
+NOTE: You can see my GitHub repo for this project [here](https://github.com/eherdter/Airbnb_analysis) but I hope you'll stick around to read my post! Also, if you have only 5 seconds to read this post scroll all of the way to the SUMMARY section at the bottom for the TL;DR version and my **BEST VALUE** suggestion. 
+
+
+![](/post/2019-06-19-traveling-to-paris-france-how-to-get-the-biggest-bang-from-your-buck-using-airbnb/20190522_210122.jpg)
+          Our view from the top of the Arc de Triomphe.
+
+
+My husband and I just returned home from a delayed-honeymoon/finishing-my-Ph.D. two-week trip to France. It was a whirlwind. We saw ALL the sites. Ate ALL of the cheese. Swirled ALL of the wine. Walked until our toes poked through our shoes. And used [Airbnb](https://www.airbnb.com) to find lodging at every destination. 
+
+While I wouldn't put myself in the ranks of those who've stayed in hundreds of Airbnbs, we certainly _have_ had our fair share of experience searching through listings and comparing different options within every city we've visited. And I can tell you that it can be overwhelming especially in a big city like Paris which has THOUSANDS of listings spread across Paris' 20 unique neighbourhoods (or districts). It's hard to determine with listing would be a *_Best Value_* option. 
+
+So, I thought it would be interesting (and a fun way for me to reflect back on our trip to France) to dig in to the Airbnb listing data for Paris, France to see if I could make some generalations about the data and identify some **Best Value** options. 
+
+# Project Goals
+
+The goal of my analysis was to **gain insight into trends in listing price and distill the data into a few key points or "take-aways" that would be useful and informative to future travelers to Paris** (and would have been useful for us, too, when we were booking Paris. But hindsight's 20-20, as they say.) 
+
+# About My Analysis
+
+I used [publicly available data on Airbnb listings](http://insideairbnb.com/get-the-data.html) to...
+
+1. Provide a summary overview of price by district and room type   
+2. Determine which user selectable options are most influential to listing price 
+3. Suggest an overall **best value** option based on the insight I gained while working with the data
+
+# Major Questions Asked
+
+I focused on four major questions to guide my exploration into the data.
+
+1.	What is the breakdown of listings by room type?  
+2.	How much does an Airbnb cost by district and room type?   
+3.	Does superhost status influence listing price?  
+4.	Of user options on the Airbnb website, which selections most strongly influences the price of a listing?  
+
+# Summary of Methods
+
+Before I dive into results let me first give you a quick run-down.
+
+1. The dataset need to be cleaned and tidied. Some missing information needed to be inferred. You can visit [my GitHub](https://github.com/eherdter/Airbnb_analysis) to read a more detailed description of these steps.   
+2. I parsed information from Wikipedia to match the [neighborhood names to their district number](https://en.wikipedia.org/wiki/Arrondissements_of_Paris) because Paris neighborhoods are frequently referred to by their district number.    
+3. Finally, I used a machine learning method called [Random Forest](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) to predict listing price.   
+
+# Results
+**_1. Breakdown of listings by room type._**
+
+![](/post/2019-06-19-traveling-to-paris-france-how-to-get-the-biggest-bang-from-your-buck-using-airbnb/room_types.png)
+A vast majority (86%) of the listings in Paris are entire homes/apartments. A much smaller proportion (13%) are private rooms and then a remaning 1% are shared rooms which are hostel-style accomodations.
+
+
+**_2.	How much does an Airbnb cost by district and room type?_**  
+
+![](/post/2019-06-19-traveling-to-paris-france-how-to-get-the-biggest-bang-from-your-buck-using-airbnb/list_price_range.png)
+
+The most expensive district (based on median listing price) is the 8th district. Generally, **entire apartments are the most expensive regardless of district** and shared rooms are least expensive.
+
+Private rooms are nearly as much as entire apartments within the most expensive districts whereas within moderately priced districts, median price of private rooms generally fall within the middle price range between entire apartments and shared rooms. 
+
+
+**_3.	Does superhost status influence listing price?_** 
+![](/post/2019-06-19-traveling-to-paris-france-how-to-get-the-biggest-bang-from-your-buck-using-airbnb/Superhost_price_diff.png)
+
+In short, Yes. Entire homes/apartments offered by superhosts are more expensive than those offered by non-superhosts regardless of district. But, the difference is minimized in district 17, 19, 20, and 9. So getting a superhost listing in those areas won't cost you that much more than one by a non-superhost. 
+
+Surprisingly, the sweet spot seems to be with the private rooms. In district 1, 2,3,5,7,8, and 9, a superhost listing for a private room is, on average, less expensive than that offered by a non-superhost.
+
+BUT, KEEP READING TO READ MY **BEST VALUE** OPTION BASED ON THESE RESULTS... 
+
+**_4. Of user options on the Airbnb website, which selections most strongly influences the price of a listing?_**
+
+The Random Forest model had decent predictive power at an R<sup>2</sup> of 0.72. Not perfect but a good start. Here is the order of importance of the variables (as ranked by Random Forest) in terms of how they influence price. 
+
+1. Neighborhood (district)
+2. Superhost status
+3. Property type
+4. Room type
+5. The day of the week selected for booking
+6. If it has a washing machine
+7. If it has an elevator
+8. If it has Wifi
+9. It it has A/C
+10. If it has a drying machine
+11. Number of bathrooms
+12. Number of bedrooms
+13. Number of beds
+14. Minimum number of nights guests can book listing
+15. Month of booking
+
+
+So, if you want to find a less expensive listing chose a different neighborhood, after that try to toggle between options for property type, and room type. 
+
+# FINALY, MY *BEST VALUE* SUGGESTION
+
+If you want to stay close to the action you'll probably want to stay in districts 1,3,6,7, or 8. So, if you do, chose a Private Room!!!
+
+It has been my inclination to avoid Private Rooms and chose Entire homes/apts but, BOY, have I been missing out.  While the price of a private room is nearly as much as an entire room or apartment the private rooms are frequently loft spaces or part of a duplex that are **_much_** nicer than entire apartments listed at the same price. For example, the private rooms in the 8th district generally have private bathrooms but do share a common entrance space or outdoor living space.   
+
+Here are some pictures of private rooms in the 8th district. 
+![](https://a0.muscache.com/im/pictures/10689545/3a015ecb_original.jpg?aki_policy=x_large)
+
+![](https://a0.muscache.com/im/pictures/68559927/3991b212_original.jpg?aki_policy=x_large)
+
+![](https://a0.muscache.com/im/pictures/9b1e747c-6a91-44bf-9dd7-d75d2c7d9373.jpg?aki_policy=x_large)
+
+I wish I would have known to look for Private Rooms before we had gone to Paris. But, as they say in Paris, "c'est la vie"!
+
+# IN SUMMARY
+
+1. There are many Entire rooms/apts in Paris so if that's more your style you'll have no problem finding something that works for you.   
+  
+2. The lower numbered districts (areas close to tourist destinations - so no surpirse there) are generally more expensive.  
+
+3. Try to find private rooms in lower numbered districst as they seem to be a GREAT deal!  
+
+4. Superhost listings are generally more expensive but within higher numbered districts like 17, 19, and 20 they aren't that much more expensive than a non-superhost. 
+
+4. The number one most important predictor of price is the neighborhood (district) so if you're looking for something in a different price range try to search in a different area. 
+
+Hope you found this helpful and please let me know if you're interested in learning about other aspects of the Paris Airbnb data. Happy to dive back into it to find more interesting aspects! 
